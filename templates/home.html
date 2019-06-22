@@ -1,66 +1,162 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block content %}
-<div class="container" style="margin-top: 50px; margin-bottom: 200px;">
-    <div class="row">
-        {% for post in posts %}
-        <!-- <div class="col-12"> -->
-            <div class="card col-10" style="width: 18rem; margin-top: 30px;">
-                <div class="post-buttons" style="margin-top:10px;margin-bottom:10px;">
-                    <span class="card-title writer">글쓴이 : {{ post.user.username }}</span>
-                    {% if user != post.user %}
-                        {% if user in post.user.followers.all %}
-                            <a href="{% url 'users:follow_toggle' post.user.id %}" class="btn btn-primary right">팔로우 취소</a>
-                        {% else %}
-                            <a href="{% url 'users:follow_toggle' post.user.id %}" class="btn btn-primary right">팔로우</a>
-                        {% endif %}
+{% for post in posts %}
+<div class = "main">
+    <div class = "main_left">
+        <section class = "card_section">
+            <div class = "following_card">
+                <header>
+                <img src="{% static 'image/bye.jpg' %}" alt = "">
+                <div class = "user_name">{{post.user.username}}</div>
+                {% if user != post.user %}
+                    {% if user in post.user.followers.all %}
+                        <a href="{% url 'users:follow_toggle' post.user.id %}" >팔로잉</a>
+                    {% else %}
+                        <a href="{% url 'users:follow_toggle' post.user.id %}" >팔로우</a>
                     {% endif %}
-                    {% if user == post.user %}
-                    <a href="{% url 'posts:delete' post.pk %}" class="btn btn-primary right" style="margin-left: 15px;">삭제</a>
-                    <a href="{% url 'posts:edit' post.pk %}" class="btn btn-primary right">수정</a>
+                {% endif %}
+                {% if user == post.user %}
+                    <a href="{% url 'posts:delete' post.pk %}"  style="margin-left: 25rem;">삭제</a>
+                    <a href="{% url 'posts:edit' post.pk %}">수정</a>
+                {% endif %}
+                </header>
+                <div class = "card_image">
+                <img src="{{ post.image.url }}" class="media"  alt="...">
+                </div>
+                <div class = "info">
+                <div class = "info_left">
+                        {% if user in post.likes.all %}
+                            <a href="{% url 'posts:like_toggle' post.id %}" class="fas fa-heart"></a>
+                        {% else %}
+                            <a href="{% url 'posts:like_toggle' post.id %}" class = "far fa-heart"></a>
+                        {% endif %}
+                        <br>
+                        <p>좋아요{{ post.likes_count }}개<p>
+                        <!-- <i class = "far fa-comment"></i>
+                        <i class = "fas fa-upload"></i> -->
+                </div>
+                <div class = "info_right">
+                    <!-- <i class = "far fa-bookmark"></i> -->
+                </div>
+                </div>
+                <div class = "post_title">
+                  <p>{{post.user.username}}</p>{{post.title}}<br>
+                  <p2>{{post.content}}</p2>
+                </div>
+                <div class = "comment">
+                    {% if post.comments %}
+                            {% for comment in post.comments %}
+                                 <div class="comment_block">
+                                    <h2>{{ comment.user.username }}</h2>
+                                    <div class = "message">{{ comment.message }}</div>
+                                        {% if user == comment.user %}
+                                            <a href="{% url 'posts:delete_comment' comment.pk %}" class="comment_delete">삭제</a>
+                                        {% endif %}
+                                  </div>
+                            {% endfor %}
                     {% endif %}
                 </div>
-                {% if post.image %}
-                    <img src="{{ post.image.url }}" class="card-img-top" alt="...">
-                {% endif %}
-                <div class="card-body">
-                    <h5 class="card-title">{{ post.title }}</h5>
-                    {{ post.likes_count }}명이 좋아합니다.
-                    {% if user in post.likes.all %}
-                        <a href="{% url 'posts:like_toggle' post.id %}">좋아요 취소</a>
-                    {% else %}
-                        <a href="{% url 'posts:like_toggle' post.id %}">좋아요</a>
-                    {% endif %}
-                    <p class="card-text" style="margin-top: 30px;">{{ post.content }}</p>
-                    
-                    <form action="{% url 'posts:create_comment' post.pk %}" method="POST" style="margin-top: 50px;">
+                <div class="in-line">
+                    <form action = "{% url 'posts:create_comment' post.pk %}" method = "POST">
                         {% csrf_token %}
-                        <div class="form-group">
-                            <textarea class="form-control" name="message" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="댓글 달기..."></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary right">작성</button>
-                    </form><br>
-
-                    {% if post.comments %}
-                    <ul class="list-group" style="margin-top: 40px;">
-                        {% for comment in post.comments %}
-                        <li class="list-group-item">
-                            <p>
-                                <b>{{ comment.user.username }}</b>
-                                {% if user == comment.user %}
-                                    <a href="{% url 'posts:delete_comment' comment.pk %}" class="right">삭제</a>
-                                {% endif %}
-                            </p>
-                            <p>{{ comment.message }}</p>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                    {% endif %}
+                        <input type="text" name="message" value="" placeholder="댓글 달기..." >
+                        <button type = "submit">작성</button> 
+                    </form>
+                    
                 </div>
             </div>
-        <!-- </div> -->
-        {% endfor %}
+    </section> 
+    </div>
+    <div class = "main_right">
+        <div class = "right_nav">
+        <div id = "fixed_nav">
+            <div class = "my_card">
+                <header>
+                    <img src="{% static 'image/bye.jpg' %}" alt = "">
+                    <div class = "user_name">{{request.user}}</div>
+                </header>
+                 {% for following in request.user.followings.all %}
+                  {{following}}<br>
+                 {% endfor %}
+            </div>
+        </div>
+        </div>
     </div>
 </div>
+
+
+
+{% endfor %}
 {% endblock content %}
-    
+
+
+<script>
+        $(".ajax_test").click(function(){
+            var message = $("#message").val()
+            var pk = $(this).attr('postid')
+            
+            $.ajax({
+                type: 'POST',
+                url: "{% url 'posts:create_comment' %}",
+                data : {'pk': pk, 'message':'{{csrf_token }}'},
+                dataType: "json",
+
+                success: function(data){
+                    $("#ajax_comment").fadeOut().promise().done(
+                    function(){
+                        $("#ajax_comment").html(data["message"])
+                        $("#ajax_comment").fadeIn(1000)}
+                    ); 
+                }
+            }) 
+        })
+</script>
+
+<script>
+        $(document)
+          .ready(function() {
+            // fix menu when passed
+            $('.masthead')
+              .visibility({
+                once: false,
+                onBottomPassed: function() {
+                  $('.fixed.menu').transition('fade in');
+                },
+                onBottomPassedReverse: function() {
+                  $('.fixed.menu').transition('fade out');
+                }
+              })
+            ;
+        
+            // create sidebar and attach to menu open
+            $('.ui.sidebar')
+              .sidebar('attach events', '.toc.item')
+            ;
+          })
+        ;
+</script>
+
+
+<script type="text/javascript">
+    $(".like").click(function(){
+      var pk = $(this).attr('name')
+      $.ajax({ // .like 버튼을 클릭하면 <새로고침> 없이 ajax로 서버와 통신하겠다.
+        type: "POST", // 데이터를 전송하는 방법을 지정
+        url: "{% url 'posts:post_like' %}", // 통신할 url을 지정
+        data: {'pk': pk, 'csrfmiddlewaretoken': '{{ csrf_token }}'}, // 서버로 데이터 전송시 옵션
+        dataType: "json", // 서버측에서 전송한 데이터를 어떤 형식의 데이터로서 해석할 것인가를 지정, 없으면 알아서 판단
+        // 서버측에서 전송한 Response 데이터 형식 (json)
+        // {'likes_count': post.like_count, 'message': message }
+        success: function(response){ // 통신 성공시 - 좋아요 갯수 변경, 유저 목록 변경
+          alert(response.message);
+          $("#count-"+pk).html(response.like_count+"개");
+        },
+        error: function(request, status, error){ // 통신 실패시 - 로그인 페이지 리다이렉트
+          alert("로그인이 필요합니다.")
+          window.location.replace("/accounts/login/")
+          //  alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+        },
+      });
+    })
+  </script>

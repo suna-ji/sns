@@ -1,0 +1,7 @@
+<form action = "{% url 'app:create' %}" method = "POST" enctype = "multipart/form-data">
+    {% csrf_token %}
+    <label>당신을 표현해주세요!</label><br>
+    <input type = "file" name = "image"><br><br>
+    <input type = "submit" class = "btn btn-primary" value = "등록">
+
+</form>

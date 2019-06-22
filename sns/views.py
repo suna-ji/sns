@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from posts.models import Post
 from django.db.models import Count, Avg
+import pdb
 
 def home(request):
     user = request.user
