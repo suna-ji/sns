@@ -7,6 +7,8 @@ import json
 import pdb
 import collections
 import operator
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 
 
 
@@ -51,7 +53,6 @@ def delete(request, id):
     post.delete()
     return redirect('home')
 
-
 def create_comment(request, post_id):
     if request.method == "POST":
         user = request.user
@@ -83,40 +84,25 @@ def delete_comment(request, comment_id):
     comment.delete()
     return redirect('home')
 
-
+@login_required
+@require_POST
 def like_toggle(request, post_id):
     user = request.user
-    if user.is_anonymous:
-        return redirect('account_login')
     post = get_object_or_404(Post, pk=post_id)
-    
-    is_like = user in post.likes.all()
-    
-    if is_like:
-        post.likes.remove(user)
-    else:
-        post.likes.add(user)
-
-    return redirect('home')
-
-
-def post_like(request):
-    pdb.set_trace()
-    user = request.user
-    if user.is_anonymous:
-        return redirect('account_login')   
-    pk = request.POST.get('pk', None) # ajax 통신을 통해서 template에서 POST방식으로 전달
-    post = get_object_or_404(Post, pk=pk)
     is_like = user in post.likes.all()
     if is_like:
         post.likes.remove(user)
-        message = "좋아요 취소"
+        result = "heart-empty"
+        likes_count = post.likes.count()
     else:
         post.likes.add(user)
-        message = "좋아요"
-    context = {'like_count': post.like_count,
-               'message': message,
-               }
+        result = "heart"
+        likes_count = post.likes.count()
+    context = {
+        'result':result,
+        'likes_count':likes_count
+
+    }        
     return HttpResponse(json.dumps(context), content_type="application/json")
 
 

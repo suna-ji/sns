@@ -16,7 +16,6 @@ urlpatterns = [
 
     #likes
     path('<int:post_id>/like_toggle/', like_toggle, name="like_toggle"),
-    path('post_like/', post_like, name = "post_like"),
 
     #search
     path('search/', search, name = "search"),
