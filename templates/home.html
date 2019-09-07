@@ -45,12 +45,12 @@
                   <p>{{post.user.username}}</p>{{post.title}}<br>
                   <p2>{{post.content}}</p2>
                 </div>
-                <div class = "comment">
+                <div class = "comment for-{{post.id}}">
                     {% if post.comments %}
                             {% for comment in post.comments %}
                                  <div class="comment_block">
                                     <h2>{{ comment.user.username }}</h2>
-                                    <div class = "message">{{ comment.message }}</div>
+                                    <div>{{ comment.message }}</div>
                                         {% if user == comment.user %}
                                             <a href="{% url 'posts:delete_comment' comment.pk %}" class="comment_delete">삭제</a>
                                         {% endif %}
@@ -59,12 +59,8 @@
                     {% endif %}
                 </div>
                 <div class="in-line">
-                    <form action = "{% url 'posts:create_comment' post.pk %}" method = "POST">
-                        {% csrf_token %}
-                        <input type="text" name="message" value="" placeholder="댓글 달기..." >
-                        <button type = "submit">작성</button> 
-                    </form>
-                    
+                    <input type="text" class = "ajax-comment" name="message" value="" placeholder="댓글 달기..." >
+                    <button data-post-id = "{{post.id}}" data-comment-user = "{{user}}" class = "comment-button" type = "submit">작성</button>                   
                 </div>
             </div>
     </section> 
@@ -94,19 +90,62 @@
 {% block js %}
 <script>
   $(".icon").on("click", function(){
-    const itemId = $(this).data('post-id');
+    const postId = $(this).data('post-id');
     $.ajax({
-        url: `posts/${itemId}/like_toggle/`,
+        url: `posts/${postId}/like_toggle/`,
         type: 'POST',
         data: {'csrfmiddlewaretoken' : "{{csrf_token}}"},
         success: function(response) {
-          $(`.${itemId}`).attr('class', `icon ion-ios-${response.result} ${itemId}`);
-          $(`.like-count-${itemId}`).text(`좋아요 ${response.likes_count}개`);
+          $(`.${postId}`).attr('class', `icon ion-ios-${response.result} ${postId}`);
+          $(`.like-count-${postId}`).text(`좋아요 ${response.likes_count}개`);
         },
         error:function(request,status,error){
         alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
         }
       }); 
-  }); 
+  });//좋아요 ajax
+
+  $(".comment-button").on("click",function(){
+    const postId = $(this).data('post-id');
+    let user = $(this).data(`comment-user`);
+    let message = $(".ajax-comment").val();
+    $.ajax({
+      url:`posts/${postId}/create_comment/`,
+      type:'POST',
+      data: {
+        'csrfmiddlewaretoken': "{{csrf_token}}",
+        'message': message 
+      },
+      success: function(response){
+        $(`.for-${postId}`).append(
+          ` <div class = "comment_block">
+            <h2>${user}</h2>
+            <div>${message}</div>
+            <a href = "posts/${response.commentpk}/delete_comment/" class = "comment_delete">삭제</a> 
+            </div>`
+        );
+      },
+      error:function(request,status,error){
+        alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+      }
+    });
+  });//댓글 ajax
 </script>
 {% endblock js %}
+
+
+
+
+<!-- <div class = "comment for-{{post.id}}">
+    {% if post.comments %}
+            {% for comment in post.comments %}
+                 <div class="comment_block">
+                    <h2>{{ comment.user.username }}</h2>
+                    <div>{{ comment.message }}</div>
+                        {% if user == comment.user %}
+                            <a href="{% url 'posts:delete_comment' comment.pk %}" class="comment_delete">삭제</a>
+                        {% endif %}
+                  </div>
+            {% endfor %}
+    {% endif %}
+</div> -->

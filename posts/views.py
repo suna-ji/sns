@@ -53,30 +53,19 @@ def delete(request, id):
     post.delete()
     return redirect('home')
 
+
+@login_required
+@require_POST
 def create_comment(request, post_id):
-    if request.method == "POST":
-        user = request.user
-        if user.is_anonymous:
-            return redirect('account_login')
-        post = get_object_or_404(Post, pk=post_id)
-        message = request.POST.get('message')
-        Comment.objects.create(user=user, post=post, message=message)
-        return redirect('home')
-
-# def create_comment(request):
-#     if request.is_ajax():
-#         user = request.user
-#         if user.is_anonymous:
-#             return redirect('account_login')
-#         pk = request.POST.get('pk', None)    
-#         post = get_object_or_404(Post, pk = post_id )
-#         message = request.POST.get['message']
-#         Comment.objects.create(user=user, post = post, message = message)
-#         data = {'message':message}
-#         return HttpResponse(json.dumps(data), "application/json")
-#     return redirect('home')   
-
-
+    user = request.user
+    post = get_object_or_404(Post, pk=post_id)
+    message = request.POST.get('message')
+    the_comment = Comment.objects.create(user=user, post=post, message=message)
+    commentpk = the_comment.pk
+    context = {
+        'commentpk': commentpk
+    }
+    return HttpResponse(json.dumps(context), content_type = "application/json")
 
 
 def delete_comment(request, comment_id):
