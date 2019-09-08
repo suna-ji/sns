@@ -4,4 +4,5 @@ from .views import *
 app_name = "users"
 urlpatterns = [
     path('<int:id>/follow_toggle/', follow_toggle, name="follow_toggle"),
+    path('mypage/', mypage, name = "mypage"),
 ]

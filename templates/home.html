@@ -48,19 +48,19 @@
                 <div class = "comment for-{{post.id}}">
                     {% if post.comments %}
                             {% for comment in post.comments %}
-                                 <div class="comment_block">
+                                 <div class="comment_block cb-{{comment.pk}}">
                                     <h2>{{ comment.user.username }}</h2>
                                     <div>{{ comment.message }}</div>
                                         {% if user == comment.user %}
-                                            <a href="{% url 'posts:delete_comment' comment.pk %}" class="comment_delete">삭제</a>
+                                            <a style = " color:grey; font-size: 0.8rem; margin-left: auto;" class = "comment_delete"  data-comment-pk = "{{comment.pk}}">삭제</a>
                                         {% endif %}
                                   </div>
                             {% endfor %}
                     {% endif %}
                 </div>
                 <div class="in-line">
-                    <input type="text" class = "ajax-comment" name="message" value="" placeholder="댓글 달기..." >
-                    <button data-post-id = "{{post.id}}" data-comment-user = "{{user}}" class = "comment-button" type = "submit">작성</button>                   
+                    <input type="text" class = "ajax-comment" name="message" value="" placeholder="댓글달기.." >
+                    <button data-post-id = "{{post.id}}" data-comment-user = "{{user}}" class = "comment-button" type = "submit">게시</button>                   
                 </div>
             </div>
     </section> 
@@ -89,7 +89,7 @@
 
 {% block js %}
 <script>
-  $(".icon").on("click", function(){
+    $(".icon").on("click", function(){
     const postId = $(this).data('post-id');
     $.ajax({
         url: `posts/${postId}/like_toggle/`,
@@ -118,34 +118,37 @@
       },
       success: function(response){
         $(`.for-${postId}`).append(
-          ` <div class = "comment_block">
-            <h2>${user}</h2>
-            <div>${message}</div>
-            <a href = "posts/${response.commentpk}/delete_comment/" class = "comment_delete">삭제</a> 
-            </div>`
+          `<div class = "comment_block cb-${response.commentpk}">
+          <h2>${user}</h2>
+          <div>${message}</div>
+          <a style = " color:grey; font-size: 0.8rem; margin-left: auto;" class = "comment_delete"  data-comment-pk = "${response.commentpk}">삭제</a> 
+          </div>`
         );
       },
       error:function(request,status,error){
         alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
       }
     });
-  });//댓글 ajax
+  });//댓글달기 ajax
+  
+
+  $(document).on("click", ".comment_delete", function() {
+    console.log("눌렸다!")
+    const commentId = $(this).data('comment-pk');
+    let commentBlock = $(`.cb-${commentId}`);
+
+    $.ajax({
+      url:`posts/${commentId}/delete_comment/`,
+      success: function(response){
+        commentBlock.remove();//댓글 블록(작성자, 댓글, 삭제버튼)통째로 지우기
+      },
+      error:function(request,status,error){
+        alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+      }
+    })
+  });//댓글삭제 ajax
+
 </script>
 {% endblock js %}
 
 
-
-
-<!-- <div class = "comment for-{{post.id}}">
-    {% if post.comments %}
-            {% for comment in post.comments %}
-                 <div class="comment_block">
-                    <h2>{{ comment.user.username }}</h2>
-                    <div>{{ comment.message }}</div>
-                        {% if user == comment.user %}
-                            <a href="{% url 'posts:delete_comment' comment.pk %}" class="comment_delete">삭제</a>
-                        {% endif %}
-                  </div>
-            {% endfor %}
-    {% endif %}
-</div> -->

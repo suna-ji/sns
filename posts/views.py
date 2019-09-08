@@ -3,6 +3,7 @@ from .models import *
 from .forms import *
 from django.db.models import Count
 from django.http import HttpResponse
+from django.http import JsonResponse
 import json
 import pdb
 import collections
@@ -61,7 +62,7 @@ def create_comment(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
     message = request.POST.get('message')
     the_comment = Comment.objects.create(user=user, post=post, message=message)
-    commentpk = the_comment.pk
+    commentpk = int(the_comment.pk)
     context = {
         'commentpk': commentpk
     }
@@ -71,7 +72,11 @@ def create_comment(request, post_id):
 def delete_comment(request, comment_id):
     comment = get_object_or_404(Comment, pk=comment_id)
     comment.delete()
-    return redirect('home')
+    result = "yes"
+    context = {
+        'result':result
+    }
+    return HttpResponse(json.dumps(context), content_type="application/json")
 
 @login_required
 @require_POST
@@ -97,6 +102,9 @@ def like_toggle(request, post_id):
 
 def search(request):
      return redirect('search')  
+
+
+
 
 
  

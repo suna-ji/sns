@@ -16,3 +16,7 @@ def follow_toggle(request, id):
         user.followings.add(followed_user)
 
     return redirect('home')
+
+
+def mypage(request):
+    return render(request,'account/mypage.html')   

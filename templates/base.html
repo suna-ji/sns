@@ -131,6 +131,7 @@
         .comment_delete{
           color:grey;
           font-size: 0.8rem;
+          margin-right: -1rem;
 
         }
         .comment_form form{
@@ -233,7 +234,7 @@
 
     <title>
         {% block title %}
-            SNS
+            인스타따라하기
         {% endblock title %}
     </title>
   </head>
@@ -253,7 +254,7 @@
           <a href="{% url 'account_login' %}" class="far fa-user"></a>
           {% else %}
           <a href="{% url 'posts:new' %}" class="fas fa-pencil-alt"></a>
-          <a href="{% url 'account_logout' %}" class = "fas fa-user"></a>
+          <a href="#" class = "fas fa-user"></a>
           {% endif %}
       </div>    
       <!-- dd -->
